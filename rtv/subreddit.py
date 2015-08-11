@@ -195,33 +195,33 @@ class SubredditPage(BasePage):
         n_title = len(data['split_title'])
         for row, text in enumerate(data['split_title'], start=offset):
             if row in valid_rows:
-                add_line(win, text, row, 1, curses.A_BOLD)
+                add_line(win, text, row, 1, Color.SubRedditTitle)
 
         row = n_title + offset
         if row in valid_rows:
             seen = (data['url_full'] in history)
-            link_color = Color.MAGENTA if seen else Color.BLUE
-            attr = curses.A_UNDERLINE | link_color
+            attr = Color.LinkSeen if seen else Color.Link
             add_line(win, u'{url}'.format(**data), row, 1, attr)
 
         row = n_title + offset + 1
         if row in valid_rows:
-            add_line(win, u'{score} '.format(**data), row, 1)
+            add_line(win, u'{score} '.format(**data), row, 1, Color.SubRedditScore)
             text, attr = get_arrow(data['likes'])
             add_line(win, text, attr=attr)
-            add_line(win, u' {created} {comments} '.format(**data))
+            add_line(win, u' {created}'.format(**data), attr=Color.SubRedditCreated)
+            add_line(win, u' {comments} '.format(**data), attr=Color.SubRedditComments)
 
             if data['gold']:
                 text, attr = get_gold()
                 add_line(win, text, attr=attr)
 
             if data['nsfw']:
-                text, attr = 'NSFW', (curses.A_BOLD | Color.RED)
+                text, attr = 'NSFW', Color.Nsfw
                 add_line(win, text, attr=attr)
 
         row = n_title + offset + 2
         if row in valid_rows:
-            add_line(win, u'{author}'.format(**data), row, 1, curses.A_BOLD)
-            add_line(win, u' /r/{subreddit}'.format(**data), attr=Color.YELLOW)
+            add_line(win, u'{author}'.format(**data), row, 1, Color.SubRedditAuthor)
+            add_line(win, u' /r/{subreddit}'.format(**data), attr=Color.SubRedditSource)
             if data['flair']:
-                add_line(win, u' {flair}'.format(**data), attr=Color.RED)
+                add_line(win, u' {flair}'.format(**data), attr=Color.Flair)

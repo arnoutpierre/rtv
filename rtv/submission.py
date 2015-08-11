@@ -156,17 +156,18 @@ class SubmissionPage(BasePage):
         row = offset
         if row in valid_rows:
 
-            attr = curses.A_BOLD
-            attr |= (Color.BLUE if not data['is_author'] else Color.GREEN)
-            add_line(win, u'{author} '.format(**data), row, 1, attr)
+            line_color = Color.SubmissionAuthor
+            if data["is_author"]:
+                line_color = Color.SubmissionIsAuthor
+            add_line(win, u'{author} '.format(**data), row, 1, line_color)
 
             if data['flair']:
-                attr = curses.A_BOLD | Color.YELLOW
-                add_line(win, u'{flair} '.format(**data), attr=attr)
+                add_line(win, u'{flair} '.format(**data), attr=Color.Flair)
 
             text, attr = get_arrow(data['likes'])
             add_line(win, text, attr=attr)
-            add_line(win, u' {score} {created} '.format(**data))
+            add_line(win, u' {score}'.format(**data), attr=Color.SubmissionScore)
+            add_line(win, u' {created}'.format(**data), attr=Color.SubmissionCreated)
 
             if data['gold']:
                 text, attr = get_gold()
@@ -174,7 +175,7 @@ class SubmissionPage(BasePage):
 
         for row, text in enumerate(data['split_body'], start=offset + 1):
             if row in valid_rows:
-                add_line(win, text, row, 1)
+                add_line(win, text, row, 1, attr=Color.SubmissionCommentsText)
 
         # Unfortunately vline() doesn't support custom color so we have to
         # build it one segment at a time.
@@ -197,8 +198,9 @@ class SubmissionPage(BasePage):
         n_rows, n_cols = win.getmaxyx()
         n_cols -= 1
 
-        add_line(win, u'{body}'.format(**data), 0, 1)
-        add_line(win, u' [{count}]'.format(**data), attr=curses.A_BOLD)
+        add_line(win, u'{body}'.format(**data), col=1, attr=Color.SubmissionMoreComments)
+        add_line(win, u' ')
+        add_line(win, u'[{count}]'.format(**data), attr=Color.SubmissionMoreCommentsCount)
 
         attr = Color.get_level(data['level'])
         win.addch(0, 0, curses.ACS_VLINE, attr)
@@ -212,19 +214,18 @@ class SubmissionPage(BasePage):
         n_cols -= 3  # one for each side of the border + one for offset
 
         for row, text in enumerate(data['split_title'], start=1):
-            add_line(win, text, row, 1, curses.A_BOLD)
+            add_line(win, text, row, 1, attr=Color.SubmissionTitle)
 
         row = len(data['split_title']) + 1
-        attr = curses.A_BOLD | Color.GREEN
-        add_line(win, u'{author}'.format(**data), row, 1, attr)
-        attr = curses.A_BOLD | Color.YELLOW
+        add_line(win, u'{author}'.format(**data), row, 1, Color.SubmissionAuthor)
         if data['flair']:
-            add_line(win, u' {flair}'.format(**data), attr=attr)
-        add_line(win, u' {created} {subreddit}'.format(**data))
+            add_line(win, u' {flair}'.format(**data), attr=Color.Flair)
+        add_line(win, u'{created}'.format(**data), col=1, attr=Color.SubmissionCreated)
+        add_line(win, u' ')
+        add_line(win, u'{subreddit}'.format(**data), attr=Color.SubmissionSubReddit)
 
         row = len(data['split_title']) + 2
-        attr = curses.A_UNDERLINE | Color.BLUE
-        add_line(win, u'{url}'.format(**data), row, 1, attr)
+        add_line(win, u'{url}'.format(**data), row, 1, attr=Color.Link)
         offset = len(data['split_title']) + 3
 
         # Cut off text if there is not enough room to display the whole post
@@ -235,20 +236,19 @@ class SubmissionPage(BasePage):
             split_text.append('(Not enough space to display)')
 
         for row, text in enumerate(split_text, start=offset):
-            add_line(win, text, row, 1)
+            add_line(win, text, row, 1, attr=Color.SubmissionText)
 
         row = len(data['split_title']) + len(split_text) + 3
-        add_line(win, u'{score} '.format(**data), row, 1)
+        add_line(win, u'{score} '.format(**data), row, 1, attr=Color.SubmissionScore)
         text, attr = get_arrow(data['likes'])
         add_line(win, text, attr=attr)
-        add_line(win, u' {comments} '.format(**data))
+        add_line(win, u' {comments} '.format(**data), attr=Color.SubmissionComments)
 
         if data['gold']:
             text, attr = get_gold()
             add_line(win, text, attr=attr)
 
         if data['nsfw']:
-            text, attr = 'NSFW', (curses.A_BOLD | Color.RED)
-            add_line(win, text, attr=attr)
+            add_line(win, "NSFW", attr=Color.Nsfw)
 
         win.border()

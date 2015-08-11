@@ -492,6 +492,7 @@ class BasePage(object):
             return
 
         # Note: 2 argument form of derwin breaks PDcurses on Windows 7!
+        self.stdscr.bkgd(Color.Background)
         self._header_window = self.stdscr.derwin(1, n_cols, 0, 0)
         self._content_window = self.stdscr.derwin(n_rows - 1, n_cols, 1, 0)
 
@@ -505,20 +506,20 @@ class BasePage(object):
         n_rows, n_cols = self._header_window.getmaxyx()
 
         self._header_window.erase()
-        attr = curses.A_REVERSE | curses.A_BOLD | Color.CYAN
+        attr = Color.HeaderBackground
         self._header_window.bkgd(' ', attr)
 
         sub_name = self.content.name.replace('/r/front', 'Front Page')
-        add_line(self._header_window, sub_name, 0, 0)
+        add_line(self._header_window, sub_name, 0, 0, Color.CurrentSub)
         if self.content.order is not None:
-            add_line(self._header_window, ' [{}]'.format(self.content.order))
+            add_line(self._header_window, ' [{}]'.format(self.content.order), Color.ContentOrder)
 
         if self.reddit.user is not None:
             username = self.reddit.user.name
             s_col = (n_cols - textual_width(username) - 1)
             # Only print username if it fits in the empty space on the right
             if (s_col - 1) >= textual_width(sub_name):
-                add_line(self._header_window, username, 0, s_col)
+                add_line(self._header_window, username, 0, s_col, Color.UserName)
 
         self._header_window.refresh()
 
