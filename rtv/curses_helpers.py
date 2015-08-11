@@ -28,7 +28,7 @@ def get_gold():
     """
 
     symbol = u'\u272A' if config.unicode else '*'
-    attr = curses.A_BOLD | Color.YELLOW
+    attr = Color.Gold
     return symbol, attr
 
 
@@ -39,13 +39,13 @@ def get_arrow(likes):
 
     if likes is None:
         symbol = u'\u2022' if config.unicode else 'o'
-        attr = curses.A_BOLD
+        attr = Color.ArrowNone
     elif likes:
         symbol = u'\u25b2' if config.unicode else '^'
-        attr = curses.A_BOLD | Color.GREEN
+        attr = Color.ArrowUp
     else:
         symbol = u'\u25bc' if config.unicode else 'v'
-        attr = curses.A_BOLD | Color.RED
+        attr = Color.ArrowDown
     return symbol, attr
 
 
@@ -236,15 +236,25 @@ class Color(object):
         # Assign the terminal's default (background) color to code -1
         curses.use_default_colors()
 
+        cls._colors.update(config.default_colors)
+
         for index, (attr, code) in enumerate(cls._colors.items(), start=1):
             curses.init_pair(index, code[0], code[1])
-            setattr(cls, attr, curses.color_pair(index))
+            color = curses.color_pair(index)
+            for f in code[2:4]: color |= f
+            setattr(cls, attr, color)
+
+        # Load levels as colors
+        cls._levels = [0]
+        for color in config.levels:
+            index += 1
+            curses.init_pair(index, color[0], color[1])
+            cls._levels.append(curses.color_pair(index))
 
     @classmethod
     def get_level(cls, level):
 
-        levels = [cls.MAGENTA, cls.CYAN, cls.GREEN, cls.YELLOW]
-        return levels[level % len(levels)]
+        return cls._levels[level % len(cls._levels)]
 
 
 def text_input(window, allow_resize=True):
