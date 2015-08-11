@@ -60,3 +60,4 @@ color_aliases = {
     "BOLD": 2097152,
     "UNDERLINE": 131072
 }
+
