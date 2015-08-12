@@ -9,6 +9,7 @@ unicode = True
 default_colors = {
 
     # Globals / Structure
+    'Prompt': (-1, -1),
     'Background': (-1, -1),
     'HeaderBackground': (0, 14),
     'UserName': (16, 14, 2097152),
