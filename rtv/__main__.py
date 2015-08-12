@@ -62,6 +62,7 @@ def command_line():
 
     parser.add_argument('-s', dest='subreddit', help='subreddit name')
     parser.add_argument('-l', dest='link', help='full link to a submission')
+    parser.add_argument('-t', dest='theme', help='colors theme to use')
     parser.add_argument('--ascii', action='store_true',
                         help='enable ascii-only mode')
     parser.add_argument('--log', metavar='FILE', action='store',
@@ -99,6 +100,7 @@ def main():
             setattr(args, key, val)
 
     config.unicode = (not args.ascii)
+    config.theme = args.theme
 
     # Squelch SSL warnings for Ubuntu
     logging.captureWarnings(True)
