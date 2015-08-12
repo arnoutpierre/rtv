@@ -44,13 +44,7 @@ class Color(object):
             cls._colors.update(cls.load_colors(config.theme))
 
         for index, (attr, code) in enumerate(cls._colors.items(), start=1):
-
-            code = list(code)
-            code[0] = cls.to_allowed(code[0])
-            code[1] = cls.to_allowed(code[1])
-            code = tuple(code)
-
-
+            code = cls.verify_color(code)
             curses.init_pair(index, code[0], code[1])
             color = curses.color_pair(index)
             for f in code[2:4]: color |= f
@@ -59,9 +53,19 @@ class Color(object):
         # Load levels as colors
         cls._levels = [0]
         for color in config.levels:
+            color = cls.verify_color(color)
             index += 1
             curses.init_pair(index, color[0], color[1])
             cls._levels.append(curses.color_pair(index))
+
+    @classmethod
+    def verify_color(cls, color_tuple):
+        """ Verify colors in color_tuple and return expected tuple """
+
+        color_tuple = list(color_tuple)
+        color_tuple[0] = cls.to_allowed(color_tuple[0])
+        color_tuple[1] = cls.to_allowed(color_tuple[1])
+        return tuple(color_tuple)
 
     @classmethod
     def is_allowed(cls, color):
